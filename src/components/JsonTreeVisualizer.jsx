@@ -221,41 +221,31 @@ const JsonTreeVisualizer = ({
   const handleExpandAll = useCallback(() => {
     if (!jsonData) return;
 
-    // Find all nodes that can be expanded
-    let currentNodes = nodes;
-    let currentEdges = edges;
-    let currentExpanded = new Set(expandedNodes);
+    // Parse the entire tree structure with a very high maxDepth to expand everything
+    // This is more efficient than expanding node-by-node
+    const { nodes: allNodes, edges: allEdges, expandedNodes: allExpanded } =
+      parseJsonToGraph(JSON.stringify(jsonData), 999);
 
-    // Get all expandable node IDs
-    const expandableNodes = currentNodes.filter(n => n.data.hasChildren && !n.data.isExpanded);
-
-    // Expand each node
-    expandableNodes.forEach(node => {
-      const result = expandNode(node.id, jsonData, currentNodes, currentEdges, currentExpanded);
-      currentNodes = result.nodes;
-      currentEdges = result.edges;
-      currentExpanded = result.expandedNodes;
-    });
-
-    // Apply layout once at the end
-    const layoutedNodes = getLayoutedElements(currentNodes, currentEdges);
+    // Apply layout once at the end for best performance
+    const layoutedNodes = getLayoutedElements(allNodes, allEdges);
     setNodes(layoutedNodes);
-    setEdges(currentEdges);
-    setExpandedNodes(currentExpanded);
-  }, [nodes, edges, expandedNodes, jsonData]);
+    setEdges(allEdges);
+    setExpandedNodes(allExpanded);
+  }, [jsonData]);
+
 
   const handleCollapseAll = useCallback(() => {
     if (!jsonData) return;
 
-    // Keep only root level nodes (depth 0)
+    // Reset to initial state with maxDepth
     const { nodes: initialNodes, edges: initialEdges, expandedNodes: initialExpanded } =
-      parseJsonToGraph(JSON.stringify(jsonData), 1);
+      parseJsonToGraph(JSON.stringify(jsonData), maxDepth);
 
     const layoutedNodes = getLayoutedElements(initialNodes, initialEdges);
     setNodes(layoutedNodes);
     setEdges(initialEdges);
     setExpandedNodes(initialExpanded);
-  }, [jsonData]);
+  }, [jsonData, maxDepth]);
 
   return (
     <div className="json-tree-visualizer">
@@ -284,14 +274,14 @@ const JsonTreeVisualizer = ({
       <div className="graph-panel">
         <div className="panel-header">
           <h3>Graph View</h3>
-          {/* <div className="graph-controls">
-            <button className="control-btn" onClick={handleExpandAll} title="Expand Level Nodes">
-              Expand Level
+          <div className="graph-controls">
+            <button className="control-btn" onClick={handleExpandAll} title="Expand All Nodes">
+              + Level
             </button>
-            <button className="control-btn" onClick={handleCollapseAll} title="Collapse Level Nodes">
-              Collapse Level
+            <button className="control-btn" onClick={handleCollapseAll} title="Collapse All Nodes">
+              - Level
             </button>
-          </div> */}
+          </div>
           <SearchBar
             onSearch={handleSearch}
             searchResults={searchResults}
