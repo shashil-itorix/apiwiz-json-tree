@@ -19,14 +19,15 @@ const nodeTypes = {
   primitiveNode: PrimitiveNode,
 };
 
-const GraphView = ({ 
-  initialNodes = [], 
+const GraphView = ({
+  initialNodes = [],
   initialEdges = [],
   onToggleExpand,
   highlightedNodes = [],
   searchResults = [],
   currentResultIndex = 0,
   reactFlowInstanceRef,
+  theme = 'dark',
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -67,7 +68,7 @@ const GraphView = ({
     if (searchResults.length > 0 && reactFlowInstanceRef?.current) {
       const currentNodeId = searchResults[currentResultIndex];
       const currentNode = nodes.find(n => n.id === currentNodeId);
-      
+
       if (currentNode) {
         // Center and zoom to the node
         reactFlowInstanceRef.current.fitView({
@@ -114,7 +115,7 @@ const GraphView = ({
         className="react-flow-graph"
       >
         <Background color="#404040" gap={16} />
-        <Controls 
+        <Controls
           showInteractive={false}
           style={{
             button: {
@@ -124,15 +125,16 @@ const GraphView = ({
             }
           }}
         />
-        <MiniMap 
+        <MiniMap
           nodeColor={(node) => {
             if (node.type === 'objectNode') return '#569cd6';
             if (node.type === 'arrayNode') return '#ce9178';
             return '#4ec9b0';
           }}
-          maskColor="rgba(0, 0, 0, 0.6)"
+          maskColor={theme === 'dark' ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.7)'}
           style={{
-            backgroundColor: '#1e1e1e',
+            backgroundColor: theme === 'dark' ? '#1e1e1e' : '#ffffff',
+            border: theme === 'dark' ? 'none' : '1px solid #e0e0e0',
           }}
         />
       </ReactFlow>

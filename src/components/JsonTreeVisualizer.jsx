@@ -311,6 +311,7 @@ const JsonTreeVisualizer = ({
             searchResults={searchResults}
             currentResultIndex={currentResultIndex}
             reactFlowInstanceRef={reactFlowInstance}
+            theme={theme}
           />
         </div>
       </div>
